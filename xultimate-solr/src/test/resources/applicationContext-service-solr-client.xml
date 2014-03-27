@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:c="http://www.springframework.org/schema/c"
+	xmlns:cache="http://www.springframework.org/schema/cache"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:lang="http://www.springframework.org/schema/lang"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:oxm="http://www.springframework.org/schema/oxm"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+		http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
+		http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd
+		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/oxm http://www.springframework.org/schema/oxm/spring-oxm.xsd
+		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+	
+	<bean id="requestConfigBuilder" class="org.apache.http.client.config.RequestConfig" factory-method="custom" >
+		<property name="connectionRequestTimeout" value="0" /> <!-- 等价于future.get(0)，表示从池中获取实例的超时时间 -->
+		<property name="connectTimeout" value="2000" /> <!-- 等价于new Socket(); socket.connect(socketAddress, 2000)，表示连接的超时时间 -->
+		<property name="socketTimeout" value="1500" /> <!-- 等价于socket.setSoTimeout(1500)，表示获取输入流的超时时间 -->
+	</bean>
+
+	<bean id="httpClientBuilder" class="org.apache.http.impl.client.HttpClientBuilder" factory-method="create">
+		<property name="maxConnTotal" value="128" />
+		<property name="maxConnPerRoute" value="3" />
+		<property name="defaultRequestConfig">
+			<bean factory-bean="requestConfigBuilder" factory-method="build" />
+		</property>
+	</bean>
+	
+	<bean id="httpClient" factory-bean="httpClientBuilder" factory-method="build" destroy-method="close" />
+	
+	<bean id="requestWriter" class="org.apache.solr.client.solrj.impl.BinaryRequestWriter" />
+	<bean id="responseParser" class="org.apache.solr.client.solrj.impl.BinaryResponseParser" />
+	<bean id="httpSolrServer" class="org.apache.solr.client.solrj.impl.HttpSolrServer" destroy-method="shutdown"
+		c:baseURL="http://192.168.2.150:8080/solr/mycollection" 
+		c:client-ref="httpClient"
+		c:parser-ref="responseParser"
+		p:requestWriter-ref="requestWriter"
+		p:maxRetries="2"
+		p:useMultiPartPost="false" />
+	
+	<bean id="concurrentUpdateSolrServer" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer" 
+		c:solrServerUrl="http://192.168.2.150:8080/solr/mycollection" destroy-method="shutdown" 
+		c:queueSize="100"
+		c:threadCount="20"
+		p:soTimeout="1500"
+		p:connectionTimeout="2000"
+		p:requestWriter-ref="requestWriter"
+		p:parser-ref="responseParser" />
+	<bean id="lbHttpSolrServer" class="org.apache.solr.client.solrj.impl.LBHttpSolrServer" destroy-method="shutdown" 
+		c:httpClient-ref="httpClient"
+		c:parser-ref="responseParser"
+		c:solrServerUrl="http://192.168.2.150:8080/solr/mycollection,http://192.168.2.151:8080/solr/mycollection,http://192.168.2.152:8080/solr/mycollection,http://192.168.2.153:8080/solr/mycollection"
+		p:aliveCheckInterval="60"
+		p:requestWriter-ref="requestWriter" />
+		
+	<bean id="nullLBHttpSolrServer" class="org.apache.solr.client.solrj.impl.LBHttpSolrServer" destroy-method="shutdown" 
+		c:solrServerUrl=""
+		c:httpClient-ref="httpClient"
+		c:parser-ref="responseParser"
+		p:aliveCheckInterval="60"
+		p:requestWriter-ref="requestWriter" />
+	<bean id="cloudSolrServer" class="org.apache.solr.client.solrj.impl.CloudSolrServer" destroy-method="shutdown" 
+		p:defaultCollection="mycollection"
+		c:updatesToLeaders="true" 
+		c:zkHost="192.168.2.150:2181"
+		c:lbServer-ref="nullLBHttpSolrServer"
+		p:parser-ref="responseParser"
+		p:parallelUpdates="true"
+		p:zkClientTimeout="25000"
+		p:zkConnectTimeout="2000" />
+</beans>
