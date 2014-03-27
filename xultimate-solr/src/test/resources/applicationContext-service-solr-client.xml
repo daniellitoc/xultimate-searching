@@ -74,6 +74,7 @@
 		c:parser-ref="responseParser"
 		p:aliveCheckInterval="60"
 		p:requestWriter-ref="requestWriter" />
+	<!-- 看了zkHost涉及到的代码，可以通过","分割，原来测试的时候好像不行，应该是原来配置问题，下次搭建环境后重新测试一下 -->
 	<bean id="cloudSolrServer" class="org.apache.solr.client.solrj.impl.CloudSolrServer" destroy-method="shutdown" 
 		p:defaultCollection="mycollection"
 		c:updatesToLeaders="true" 

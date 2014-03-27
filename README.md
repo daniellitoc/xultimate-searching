@@ -40,9 +40,11 @@
 #### SolrCloud对指定分片在进行自动切分 ####
 
 	http://192.168.2.150:8080/solr/admin/collections?action=CREATE&name=mycollection3&numShards=1&replicationFactor=1&maxShardsPerNode=4	
-　　或
+　　
+	或
+	
 	http://192.168.2.150:8080/solr/admin/cores?action=CREATE&name=mycollection3_shard1_replica_1&collection=mycollection3&shard=shard1&numShards=1
-	http://192.168.2.150:8080/solr/admin/collections?action=SPLITSHARD&collection=mycollection3&shard=shard1		// 只支持自动分片的再切分。
+	http://192.168.2.150:8080/solr/admin/collections?action=SPLITSHARD&collection=mycollection3&shard=shard1	// 只支持自动分片的再切分。
 	http://192.168.2.153:8080/solr/admin/cores?action=UNLOAD&core=mycollection3_shard1_replica1					// mycollection3_shard1_replica1在192.168.2.153上。
 
 ## xultimate-ikanalyzer ##
