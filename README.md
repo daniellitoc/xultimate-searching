@@ -59,18 +59,18 @@
 
 * 将项目导出为jar文件，拷贝到solr/WEB-INF/lib/下。
 * 复制src/test/resources下的ext.dic IKAnalyzer.cfg.xml stopword.dic到solr/WEB-INF/classes/下。
-* 编辑$SOLR_HOME/collection1/conf/synonyms.txt
+* 编辑$SOLR_HOME/collection1/conf/synonyms.txt。
 * 编辑$SOLR_HOME/collection1/conf/schema.xml，添加类型
 
- 	<fieldType name="text_ikanalyzer" class="solr.TextField" >
-		<analyzer type="index">
-            <tokenizer class="org.danielli.xultimate.searching.IKTokenizerFactory" useSmart="false"/>
-        </analyzer> 
-        <analyzer type="query">
-            <tokenizer class="org.danielli.xultimate.searching.IKTokenizerFactory" useSmart="true"/>
-	    	<filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
-        </analyzer> 
-    </fieldType>
+ 	\<fieldType name="text_ikanalyzer" class="solr.TextField" \>
+		\<analyzer type="index"\>
+            \<tokenizer class="org.danielli.xultimate.searching.IKTokenizerFactory" useSmart="false"/\>
+        \</analyzer\> 
+        \<analyzer type="query"\>
+            \<tokenizer class="org.danielli.xultimate.searching.IKTokenizerFactory" useSmart="true"/\>
+	    	\<filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/\>
+        \</analyzer\> 
+    \</fieldType\>
     
 #### 配置扩展词、停用词、相近词从数据库读取 ####
 
@@ -80,25 +80,25 @@
 * 复制src/test/resources下的databases.properties到solr/WEB-INF/classes/下。
 * 编辑solr/WEB-INF/web.xml，添加
 
-	<context-param>
-		<param-name>contextConfigLocation</param-name>
-		<param-value>classpath:applicationContext-service-config.xml, classpath:applicationContext-service-crypto.xml, classpath:applicationContext-dao-base.xml, classpath:applicationContext-dao-generic.xml, classpath:applicationContext-service-generic.xml</param-value>
-	</context-param>
-	<listener>
-		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
-	</listener>
+	\<context-param\>
+		\<param-name\>contextConfigLocation\</param-name\>
+		\<param-value\>classpath:applicationContext-service-config.xml, classpath:applicationContext-service-crypto.xml, classpath:applicationContext-dao-base.xml, classpath:applicationContext-dao-generic.xml, classpath:applicationContext-service-generic.xml\</param-value\>
+	\</context-param\>
+	\<listener\>
+		\<listener-class\>org.springframework.web.context.ContextLoaderListener\</listener-class\>
+	\</listener\>
 	
 * 编辑$SOLR_HOME/collection1/conf/schema.xml，添加类型
 
-　　<fieldType name="text_ikanalyzer" class="solr.TextField" >
-		<analyzer type="index">
-            <tokenizer class="org.danielli.xultimate.searching.IKTokenizerFactory" useSmart="false"/>
-        </analyzer> 
-        <analyzer type="query">
-            <tokenizer class="org.danielli.xultimate.searching.IKTokenizerFactory" useSmart="true"/>
-	    <filter class="org.danielli.xultimate.searching.SynonymFilterFactory" ignoreCase="true" expand="true"/>
-        </analyzer> 
-    </fieldType>
+　　\<fieldType name="text_ikanalyzer" class="solr.TextField" \>
+		\<analyzer type="index"\>
+            \<tokenizer class="org.danielli.xultimate.searching.IKTokenizerFactory" useSmart="false"/\>
+        \</analyzer\> 
+        \<analyzer type="query"\>
+            \<tokenizer class="org.danielli.xultimate.searching.IKTokenizerFactory" useSmart="true"/\>
+	    \<filter class="org.danielli.xultimate.searching.SynonymFilterFactory" ignoreCase="true" expand="true"/\>
+        \</analyzer\> 
+    \</fieldType\>
 
 
 ## xultimate-lucene ##
